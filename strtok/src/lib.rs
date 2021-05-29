@@ -52,8 +52,16 @@
 ///     'static, where caller calls wth 'a, which is not subtype of 'static is not
 ///
 /// invariance
+///    //function which takes 'a mutable reference to some 'b as below
+///    fn foo(s: &'a mut &'b str, x:&'b str) {
+///         *s = x;
+///    }
+///    
+///    //type should match exactly in this case for 'b.
+///    // for &'a mut T
+///    // covariant over 'a, but invariant overe T
 ///
-///
+
 pub fn strtok<'a, 'b>(s: &'b mut &'a str, delimiter: char) -> &'a str {
     if let Some(i) = s.find(delimiter) {
         let prefix = &s[..i];
@@ -70,6 +78,57 @@ pub fn strtok<'a, 'b>(s: &'b mut &'a str, delimiter: char) -> &'a str {
 #[cfg(test)]
 mod tests {
     use crate::strtok;
+
+    pub fn take_static_str(s: &'static str) {
+        println!("{}", s);
+    }
+
+    pub fn caller<'a, F: Fn(&'a str) -> ()>(f: F, s: &'a str) {
+        f("aaa"); // this will work as we pass something with lifetime static
+
+        // below call wont work as a is bound to 'caller
+        //let a:'a String = String::new();
+        //f(&*a);
+
+        f(s);
+    }
+
+    #[test]
+    fn variance() {
+        take_static_str("a");
+
+        //this will fail as a is of some lifetime of 'a, but expected something which lives longer
+        //than or equal to 'static
+        // let a = String::new();
+        //take_static_str(&*a);
+    }
+
+    #[test]
+    fn contravariance() {
+        let f = |a| {
+            println!("{}", a);
+        };
+        let s = String::new();
+        {
+            caller(f, "a");
+            caller(|a| println!("{}", a), &*s);
+        }
+    }
+
+    fn foo<'a, 'b>(s: &'a mut &'b str, x: &'b str) {
+        *s = x;
+    }
+
+    #[test]
+    fn invariance() {
+        let mut a = "static str";
+        let s = String::new();
+        a = &*s;
+        {
+            foo(&mut a, "some str");
+        }
+        println!("{}", a);
+    }
 
     #[test]
     fn it_works() {
