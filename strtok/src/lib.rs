@@ -40,7 +40,7 @@
 ///   x = &'a str
 ///   x = &'static str
 ///  
-/// Contravariant
+/// Contravariance
 ///     fn caller(f: Fn(&'a str)->()){
 ///        f("" /* passing 'a value here */
 ///     }
@@ -79,18 +79,9 @@ pub fn strtok<'a, 'b>(s: &'b mut &'a str, delimiter: char) -> &'a str {
 mod tests {
     use crate::strtok;
 
+    ///Variance
     pub fn take_static_str(s: &'static str) {
         println!("{}", s);
-    }
-
-    pub fn caller<'a, F: Fn(&'a str) -> ()>(f: F, s: &'a str) {
-        f("aaa"); // this will work as we pass something with lifetime static
-
-        // below call wont work as a is bound to 'caller
-        //let a:'a String = String::new();
-        //f(&*a);
-
-        f(s);
     }
 
     #[test]
@@ -101,6 +92,17 @@ mod tests {
         //than or equal to 'static
         // let a = String::new();
         //take_static_str(&*a);
+    }
+
+    ///Contravariance
+    pub fn caller<'a, F: Fn(&'a str) -> ()>(f: F, s: &'a str) {
+        f("aaa"); // this will work as we pass something with lifetime static
+
+        // below call wont work as a is bound to 'caller
+        //let a:'a String = String::new();
+        //f(&*a);
+
+        f(s);
     }
 
     #[test]
@@ -115,6 +117,7 @@ mod tests {
         }
     }
 
+    ///Invariance
     fn foo<'a, 'b>(s: &'a mut &'b str, x: &'b str) {
         *s = x;
     }
@@ -122,6 +125,7 @@ mod tests {
     #[test]
     fn invariance() {
         let mut a = "static str";
+        let _ = a; //shutup compiler
         let s = String::new();
         a = &*s;
         {
@@ -130,6 +134,7 @@ mod tests {
         println!("{}", a);
     }
 
+    // The strtok effectively subjected to invariant
     #[test]
     fn it_works() {
         let mut x = "hello world boss";
