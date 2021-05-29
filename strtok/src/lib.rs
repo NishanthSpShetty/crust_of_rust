@@ -1,4 +1,13 @@
-/// lifetime variance
+/// Subtype
+///
+///     should be able to assign the value with lifetime of some 'X to the vars with lifetime
+///     'Y, ('Y ='X)
+///     then we can say  'X is subtype of 'Y.
+///         'X: 'Y
+///     ex:
+///         'statisc is subtype 'a
+///         'static:'a
+//
 ///
 /// T: U
 ///     can be read as : T is as useful as U.
@@ -11,24 +20,36 @@
 ///        let mut y = &*a;
 ///
 ///        //now assign b with 'static to 'a
-///        // here T= static, U= 'a
+///        // here T= 'static, U= 'a
 ///        //'static: 'a
 ///        y = b;
 ///
+/// lifetime variance
 /// Covariance
 ///
-/// fn foo(&'a str){}
+/// fn foo(&'a str){} //not generic type, we cant define like this. fn foo(&str)
 ///
 ///   the above function takes 'a value, we can call the function with
 ///   any value which are subtype
 ///
 ///   ex:
-///     foo(&'str)
+///     foo(&'a str)
 ///     foo(&'static)
-///
+///   //lets say you are assigning the values of following lieftime to x,
+///   //these comply covariance
+///   x = &'a str
+///   x = &'static str
 ///  
 /// Contravariant
+///     fn caller(f: Fn(&'a str)->()){
+///        f("" /* passing 'a value here */
+///     }
 ///
+///     // this one will fail
+///     caller(fn(some'static str){})
+///
+///     //here we are passing caller a function which expects the value which is subtype of
+///     'static, where caller calls wth 'a, which is not subtype of 'static is not
 ///
 /// invariance
 ///
