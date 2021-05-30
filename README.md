@@ -8,7 +8,7 @@ collection of programs covering rust concepts and tools in rust. This is followi
   
 ### strsplit
 
-  Lifetimes and implementing iterator
+  Lifetimes and implementing iterator [[Ref](https://www.youtube.com/watch?v=MSi3E5Z8oRw&t=3934s)]
   
 ### threadpoll 
    Ownership, Closures, and Threads [[Ref](https://www.youtube.com/watch?v=2mwwYbBRJSo&t=4674s)]
