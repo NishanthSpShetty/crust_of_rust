@@ -27,6 +27,7 @@ impl<'iter, T> Iterator for MutableIterator<'iter, T> {
         //replace the self.slice with empty slice, so above slice gains full access and return the
         //old slice back to us.
         let slice = replace(slice, &mut []);
+
         let (first, rest) = slice.split_first_mut()?;
         self.slice = rest;
         Some(first)
@@ -36,6 +37,20 @@ impl<'iter, T> Iterator for MutableIterator<'iter, T> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    struct SomeType<'a, T> {
+        field: &'a mut [T],
+    }
+
+    fn set_some_type<'a, T>(some_type: &'a mut SomeType<'a, T>) -> Option<&'a mut T> {
+        let p = some_type.field.as_mut();
+
+        //        let old = replace(p, &mut []);
+        let (first, rest) = p.split_first_mut()?;
+        some_type.field = rest;
+
+        Some(first)
+    }
 
     #[test]
     fn it_works() {
@@ -56,5 +71,10 @@ mod tests {
             *ele = *ele + 1;
         }
         assert_eq!(2, collection[0]);
+
+        let mut r = vec![11];
+        let mut st = SomeType { field: &mut r };
+        let x = &mut st;
+        set_some_type(x);
     }
 }
