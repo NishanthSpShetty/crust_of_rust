@@ -3,19 +3,20 @@ macro_rules! avec {
     ($($element:expr),* $(,)?) => {{
         #[allow(unused_mut)]
         let mut vs = Vec::new();
-        $(
-        vs.push($element);
-        )*
+        $( vs.push($element);)*
 
         vs
     }};
 
     ($element:expr; $count:expr) => {{
         let _temp = $element;
-        let mut vs = Vec::new();
-        for _ in 0..$count{
-            vs.push(_temp.clone());
-        }
+        let count = $count;
+        let mut vs = Vec::with_capacity(count);
+        vs.resize(count,_temp.clone());
+//        for i in 0..count{
+//            //vs.push(_temp.clone());
+//            vs[i]= _temp.clone();
+//        }
         vs
     }};
 }
