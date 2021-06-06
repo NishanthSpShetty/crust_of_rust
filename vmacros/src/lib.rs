@@ -1,4 +1,7 @@
+mod map;
+
 #[macro_export]
+#[doc(hidden)]
 macro_rules! count {
     (@u;$elelment:expr) => { () };
     ($($elelment:expr),*) => {
