@@ -1,14 +1,21 @@
 #[macro_export]
 macro_rules! avec {
-    () => {{
-        Vec::new()
-    }};
     ($($element:expr),* $(,)?) => {{
+        #[allow(unused_mut)]
         let mut vs = Vec::new();
         $(
         vs.push($element);
-        )+
+        )*
 
+        vs
+    }};
+
+    ($element:expr; $count:expr) => {{
+        let _temp = $element;
+        let mut vs = Vec::new();
+        for _ in 0..$count{
+            vs.push(_temp.clone());
+        }
         vs
     }};
 }
@@ -34,4 +41,26 @@ fn test_double() {
     assert_eq!(x.len(), 2);
     assert_eq!(x[0], 4);
     assert_eq!(x[1], 2);
+}
+
+#[test]
+fn test_repeats() {
+    // avec![element; count]
+    let x: Vec<u32> = avec![4; 2];
+    assert!(!x.is_empty());
+    assert_eq!(x.len(), 2);
+    assert_eq!(x[0], 4);
+    assert_eq!(x[1], 4);
+}
+#[test]
+
+fn test_repeats_non_literal() {
+    let mut y = Some(String::from("hello"));
+    // avec![element; count]
+    let x: Vec<String> = avec![y.take().unwrap(); 8+1];
+
+    assert!(!x.is_empty());
+    assert_eq!(x.len(), 9);
+    assert_eq!(x[0], String::from("hello"));
+    assert_eq!(x[1], String::from("hello"));
 }
