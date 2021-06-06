@@ -1,11 +1,18 @@
 #[macro_export]
 macro_rules! avec {
-    ($($element:expr),* $(,)?) => {{
+    ($($element:expr),*) => {{
+        let count = $crate::avec![@COUNT; $($element),*];
         #[allow(unused_mut)]
-        let mut vs = Vec::new();
-        $( vs.push($element);)*
-
+        let mut vs = Vec::with_capacity(count);
+        $(vs.push($element);)*
         vs
+    }};
+
+
+    // allow [1,]
+    ($($element:expr,)*) => {{
+        //call above defn
+        $crate::avec![$($element),*]
     }};
 
     ($element:expr; $count:expr) => {{
@@ -19,6 +26,14 @@ macro_rules! avec {
 //        }
         vs
     }};
+
+    (@COUNT; $($elelment:expr),*) => {
+        <[()]>::len(&[$($crate::avec![@SUBST; $elelment]),*])
+    };
+
+    (@SUBST; $elelment:expr) => {
+        ()
+    };
 }
 
 #[test]
