@@ -12,4 +12,6 @@ collection of programs covering rust concepts and tools in rust. This is followi
   
 ### threadpoll 
    Ownership, Closures, and Threads [[Ref](https://www.youtube.com/watch?v=2mwwYbBRJSo&t=4674s)]
- 
+
+### vmacros
+    Declarative macros by implemenmting vec! [[Ref](https://www.youtube.com/watch?v=q6paRBbLgNw)]
