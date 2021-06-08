@@ -6,7 +6,7 @@
 This could be scoped to a block such as function, or `{}` or even struct member whose lifetime is setup when the struct members are assigned,
 
 
-````
+```
 struct Person <'a>{
     thatPerson: &'a str, 
 }
@@ -41,7 +41,7 @@ and set the `self.slice` to some empty slice, while doing so we also need the or
  ```
 > note: here slice is shadowed.
 
-
-[Why cant I take a mutable reference to a struct member safely ?](https://stackoverflow.com/questions/25730586/how-can-i-create-my-own-data-structure-with-an-iterator-that-returns-mutable-ref)
+Read more
+1. [Why cant I take a mutable reference to a struct member safely ?](https://stackoverflow.com/questions/25730586/how-can-i-create-my-own-data-structure-with-an-iterator-that-returns-mutable-ref)
 
 
