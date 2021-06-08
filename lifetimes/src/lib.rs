@@ -6,7 +6,7 @@ struct MyIterator<'a, T> {
 
 impl<'a, T> Iterator for MyIterator<'a, T> {
     type Item = &'a T;
-    fn next(&mut self) -> Option<Self::Item> {
+    fn next<'n>(&'n mut self) -> Option<Self::Item> {
         let (first, rest) = self.slice.split_first()?;
         self.slice = rest;
         Some(first)

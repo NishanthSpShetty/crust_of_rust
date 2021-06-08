@@ -6,12 +6,12 @@ collection of programs covering rust concepts and tools in rust. This is followi
   
   Subtypinga and type variance. [[Ref](https://www.youtube.com/watch?v=iVYWDIW71jk&t=606s)]
   
-### strsplit
+### lifetime
 
-  Lifetimes and implementing iterator [[Ref](https://www.youtube.com/watch?v=MSi3E5Z8oRw&t=3934s)]
+  Lifetimes and implementing iterator [[Ref](https://www.youtube.com/watch?v=MSi3E5Z8oRw)]
   
 ### threadpoll 
-   Ownership, Closures, and Threads [[Ref](https://www.youtube.com/watch?v=2mwwYbBRJSo&t=4674s)]
+   Ownership, Closures, and Threads [[Ref](https://www.youtube.com/watch?v=2mwwYbBRJSo)]
 
 ### vmacros
     Declarative macros by implemenmting vec! [[Ref](https://www.youtube.com/watch?v=q6paRBbLgNw)]

@@ -1,5 +1,5 @@
 [package]
-name = "life1"
+name = "lifetime"
 version = "0.1.0"
 authors = ["Nishanth Shetty <nishanth.shetty@go-jek.com>"]
 edition = "2018"
