@@ -15,3 +15,6 @@ collection of programs covering rust concepts and tools in rust. This is followi
 
 ### [vmacros](https://github.com/NishanthSpShetty/crust_of_rust/tree/main/vmacros)
    Declarative macros by implemenmting vec! [[Ref](https://www.youtube.com/watch?v=q6paRBbLgNw)]
+
+### [Pointers](https://github.com/NishanthSpShetty/crust_of_rust/tree/main/pointers)
+   Interior mutability and smart pointers [[Ref](https://www.youtube.com/watch?v=8O0Nt9qY_vo)]
