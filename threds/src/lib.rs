@@ -8,7 +8,7 @@ use std::{
 
 struct Worker {
     id: usize,
-    thread: thread::JoinHandle<()>,
+    thread: Option<thread::JoinHandle<()>>,
 }
 
 trait FnBox {
@@ -22,13 +22,24 @@ impl<F: FnOnce()> FnBox for F {
 }
 
 impl Worker {
-    fn new(id: usize, receiver: Arc<Mutex<Receiver<Job>>>) -> Worker {
-        let thread = thread::spawn(move || {
+    fn new(id: usize, receiver: Arc<Mutex<Receiver<Message>>>) -> Worker {
+        let thread = thread::spawn(move || loop {
             let job = receiver.lock().unwrap().recv().unwrap();
-            println!("worker {} got job, executing", id);
-            job.call();
+
+            match job {
+                Message::NewJob(job) => {
+                    println!("worker {} got job, executing", id);
+                    job.call();
+                }
+                Message::Terminate => {
+                    break;
+                }
+            }
         });
-        Worker { id, thread }
+        Worker {
+            id,
+            thread: Some(thread),
+        }
     }
 }
 
@@ -36,7 +47,7 @@ type Job = Box<dyn FnBox + Send + 'static>;
 
 pub struct Threadpool {
     worker: Vec<Worker>,
-    sender: Sender<Job>,
+    sender: Sender<Message>,
 }
 
 impl Threadpool {
@@ -60,14 +71,29 @@ impl Threadpool {
         F: FnOnce() + Send + 'static,
     {
         let job = Box::new(task);
-        self.sender.send(job).unwrap();
+        self.sender.send(Message::NewJob(job)).unwrap();
     }
+}
+
+enum Message {
+    NewJob(Job),
+    Terminate,
 }
 
 impl Drop for Threadpool {
     fn drop(&mut self) {
         println!("shutting down worker threads");
 
-        for worker in &mut self.worker.iter_mut() {}
+        //send message to terminate all threads
+        for _ in &mut self.worker {
+            self.sender.send(Message::Terminate).unwrap();
+        }
+
+        //wait for all routine to stop
+        for worker in &mut self.worker {
+            if let Some(thread) = worker.thread.take() {
+                thread.join().unwrap();
+            }
+        }
     }
 }
