@@ -1,6 +1,6 @@
 use std::cell::UnsafeCell;
-use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
-use std::thread::{self, spawn, yield_now};
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::thread::spawn;
 
 pub const UNLOCKED: bool = false;
 pub const LOCKED: bool = true;
@@ -21,18 +21,18 @@ impl<T> Mutex<T> {
     pub fn with_lock<R>(&self, f: impl FnOnce(&mut T) -> R) -> R {
         while self
             .locked
-            .compare_exchange_weak(UNLOCKED, LOCKED, Ordering::Relaxed, Ordering::Relaxed)
+            .compare_exchange_weak(UNLOCKED, LOCKED, Ordering::Acquire, Ordering::Relaxed)
             .is_err()
         {
             //failed to obtain the UNLOCKED state, so instead of asking cpu to get exclusive lock
-            //using compare_exchange, we will read from shared cache until its UNLOCKED using busy
+            //using compare_exchange, we will read from shared cpu cache line until its UNLOCKED using busy
             //read loop
             while self.locked.load(Ordering::Relaxed) == LOCKED {}
             //only when it reads as UNLOCKED, we will try taking a lock
         }
         let ret = f(unsafe { &mut *self.v.get() });
 
-        self.locked.store(UNLOCKED, Ordering::Relaxed);
+        self.locked.store(UNLOCKED, Ordering::Release);
         ret
     }
 }
@@ -43,7 +43,7 @@ fn main() {
     let l: &'static _ = Box::leak(Box::new(Mutex::new(0)));
     let handlers: Vec<_> = (0..1000)
         .map(|_| {
-            thread::spawn(move || {
+            spawn(move || {
                 for _ in 0..100 {
                     l.with_lock(|v| {
                         *v += 1;
@@ -62,6 +62,8 @@ fn main() {
 
 #[test]
 fn too_relaxed() {
+    use std::sync::atomic::AtomicUsize;
+    use std::thread::{spawn, yield_now};
     let x: &'static _ = Box::leak(Box::new(AtomicUsize::new(0)));
     let y: &'static _ = Box::leak(Box::new(AtomicUsize::new(0)));
 
