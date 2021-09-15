@@ -83,3 +83,53 @@ fn too_relaxed() {
     let r2 = t2.join().unwrap();
     println!(" r1 {}, r2 {} ", r1, r2);
 }
+
+fn seq_cst() -> usize {
+    use std::sync::atomic::{AtomicBool, AtomicUsize};
+    use std::thread::spawn;
+    let x: &'static _ = Box::leak(Box::new(AtomicBool::new(false)));
+    let y: &'static _ = Box::leak(Box::new(AtomicBool::new(false)));
+    let z: &'static _ = Box::leak(Box::new(AtomicUsize::new(0)));
+
+    spawn(move || {
+        x.store(true, Ordering::Release);
+    });
+    spawn(move || {
+        y.store(true, Ordering::Release);
+    });
+
+    spawn(move || {
+        while !x.load(Ordering::Acquire) {}
+        if y.load(Ordering::Acquire) {
+            z.fetch_add(1, Ordering::Release);
+        }
+    })
+    .join()
+    .unwrap();
+
+    spawn(move || {
+        while !y.load(Ordering::Acquire) {}
+        if x.load(Ordering::Acquire) {
+            z.fetch_add(1, Ordering::Release);
+        }
+    })
+    .join()
+    //return the final computation value
+    .unwrap();
+    //can be 0, if the value observed by t1 and t2 are false for x and y
+    z.load(Ordering::Relaxed)
+}
+#[test]
+fn test_seq_cst() {
+    use std::collections::HashMap;
+    let mut map = HashMap::new();
+
+    for _ in 0..100000 {
+        let target = map.entry(seq_cst()).or_insert(0);
+        *target += 1;
+    }
+
+    for (k, v) in map {
+        println!(" key {} , value {}", k, v);
+    }
+}
