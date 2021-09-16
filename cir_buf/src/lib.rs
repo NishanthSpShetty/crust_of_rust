@@ -21,7 +21,6 @@ impl<T: Copy> CircularQueue<T> {
         if (self.front == 0 && self.rear == self.size - 1)
             || (self.front - 1) % self.size == self.rear
         {
-            println!("Queue is full");
             return Err(format!("queue is full"));
         } else if self.front == -1 {
             self.front = 0;
