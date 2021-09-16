@@ -1,3 +1,5 @@
+#[warn(unused)]
+
 pub struct CircularQueue<T> {
     list: Vec<Option<T>>,
     front: isize,
@@ -15,12 +17,12 @@ impl<T: Copy> CircularQueue<T> {
         }
     }
 
-    pub fn equeue(&mut self, item: T) {
+    pub fn equeue(&mut self, item: T) -> Result<T, String> {
         if (self.front == 0 && self.rear == self.size - 1)
             || (self.front - 1) % self.size == self.rear
         {
             println!("Queue is full");
-            return;
+            return Err(format!("queue is full"));
         } else if self.front == -1 {
             self.front = 0;
             self.rear = -1;
@@ -28,6 +30,7 @@ impl<T: Copy> CircularQueue<T> {
 
         self.rear = (self.rear + 1) % self.size;
         self.list[self.rear as usize] = Some(item);
+        Ok(item)
     }
 
     pub fn dequeue(&mut self) -> Option<T> {
@@ -51,18 +54,48 @@ impl<T: Copy> CircularQueue<T> {
 
 #[test]
 fn test1() {
-    let mut q = CircularQueue::<i32>::new(4);
-    q.equeue(1);
-    q.equeue(2);
-    q.equeue(3);
-    println!(" {:?}", q.list);
-    println!(" {:?} ", q.dequeue());
-    q.equeue(4);
-    println!(" {:?}", q.list);
-    println!(" {:?} ", q.dequeue());
-    q.equeue(5);
-    q.equeue(6);
-    println!(" {:?} ", q.dequeue());
-    println!(" {:?} ", q.dequeue());
-    q.equeue(1);
+    let mut q = CircularQueue::<i32>::new(3);
+    assert_eq!(q.dequeue(), None, "dequeue on empty queue returns None");
+    assert!(
+        q.equeue(2).is_ok(),
+        "enqueue insert item and returns Ok(item)"
+    );
+
+    assert!(
+        q.equeue(3).is_ok(),
+        "enqueue insert item and returns Ok(item)"
+    );
+
+    assert!(
+        q.equeue(4).is_ok(),
+        "enqueue insert item and returns Ok(item)"
+    );
+    assert_eq!(vec![Some(2), Some(3), Some(4)], q.list);
+    assert_eq!(
+        q.dequeue(),
+        Some(2),
+        "return the element from  the front oft the queue"
+    );
+    assert!(
+        q.equeue(5).is_ok(),
+        "enqueue insert item and returns Ok(item)"
+    );
+    assert_eq!(vec![Some(5), Some(3), Some(4)], q.list);
+    assert_eq!(
+        q.dequeue(),
+        Some(3),
+        "return the element from  the second front oft the queue"
+    );
+    assert_eq!(
+        q.dequeue(),
+        Some(4),
+        "return the element from  the end oft the queue"
+    );
+    assert_eq!(
+        q.dequeue(),
+        Some(5),
+        "return the element from  the front oft the queue"
+    );
+    assert_eq!(q.dequeue(), None, "return None as queue is empty");
+    q.equeue(1).unwrap();
 }
